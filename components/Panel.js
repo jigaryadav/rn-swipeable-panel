@@ -17,7 +17,7 @@ import PropTypes from "prop-types";
 
 const FULL_HEIGHT = Dimensions.get("window").height;
 const FULL_WIDTH = Dimensions.get("window").width;
-const PANEL_HEIGHT = FULL_HEIGHT - 100;
+const PANEL_HEIGHT = FULL_HEIGHT - 20;
 
 const STATUS = {
   CLOSED: 0,
@@ -50,6 +50,9 @@ class SwipeablePanel extends Component {
         this.state.pan.setValue({ x: 0, y: 0 });
       },
       onPanResponderMove: (evt, gestureState) => {
+        if (gestureState.dy < 0) {
+          return;
+        }
         this.state.pan.setValue({
           x: 0,
           y: gestureState.dy
@@ -141,64 +144,49 @@ class SwipeablePanel extends Component {
     } = this.props;
 
     return showComponent ? (
-      <Animated.View
-        style={[
-          SwipeablePanelStyles.background,
-          {
-            backgroundColor: noBackgroundOpacity
-              ? "rgba(0,0,0,0)"
-              : "rgba(0,0,0,0.5)"
-          }
-        ]}
-      >
-        {this.props.closeOnTouchOutside && (
-          <TouchableWithoutFeedback onPress={this.props.onClose}>
-            <View
-              style={[
-                SwipeablePanelStyles.background,
-                { backgroundColor: "rgba(0,0,0,0)" }
-              ]}
-            />
-          </TouchableWithoutFeedback>
-        )}
+      <>
         <Animated.View
           style={[
-            SwipeablePanelStyles.panel,
-            { width: this.props.fullWidth ? FULL_WIDTH : FULL_WIDTH - 50 },
-            { transform: this.state.pan.getTranslateTransform() },
-            style
-          ]}
-          {...this._panResponder.panHandlers}
-        >
-          <Bar />
-          {this.props.showCloseButton && (
-            <Close
-              rootStyle={closeRootStyle}
-              iconStyle={closeIconStyle}
-              onPress={this.props.onClose}
-            />
-          )}
-          <ScrollView
-            onTouchStart={() => {
-              return false;
-            }}
-            onTouchEnd={() => {
-              return false;
-            }}
-            contentContainerStyle={
-              SwipeablePanelStyles.scrollViewContentContainerStyle
+            SwipeablePanelStyles.background,
+            {
+              backgroundColor: noBackgroundOpacity
+                ? "rgba(0,0,0,0)"
+                : "rgba(0,0,0,0.5)"
             }
+          ]}
+        >
+          {this.props.closeOnTouchOutside && (
+            <TouchableWithoutFeedback onPress={this.props.onClose}>
+              <View
+                style={[
+                  SwipeablePanelStyles.background,
+                  { backgroundColor: "rgba(0,0,0,0)" }
+                ]}
+              />
+            </TouchableWithoutFeedback>
+          )}
+          <Animated.View
+            style={[
+              SwipeablePanelStyles.panel,
+              { width: this.props.fullWidth ? FULL_WIDTH : FULL_WIDTH - 50 },
+              { transform: this.state.pan.getTranslateTransform() },
+              style
+            ]}
+            {...this._panResponder.panHandlers}
           >
-            {this.state.canScroll ? (
-              <TouchableHighlight>
-                <React.Fragment>{this.props.children}</React.Fragment>
-              </TouchableHighlight>
-            ) : (
-              this.props.children
+            {this.props.header ? this.props.header() : <Bar />}
+            {this.props.showCloseButton && (
+              <Close
+                rootStyle={closeRootStyle}
+                iconStyle={closeIconStyle}
+                onPress={this.props.onClose}
+              />
             )}
-          </ScrollView>
+            {this.props.children}
+          </Animated.View>
         </Animated.View>
-      </Animated.View>
+        {this.props.footerComponent && this.props.footerComponent() || null}
+      </>
     ) : null;
   }
 }
@@ -219,7 +207,7 @@ SwipeablePanel.propTypes = {
 
 SwipeablePanel.defaultProps = {
   style: {},
-  onClose: () => {},
+  onClose: () => { },
   fullWidth: true,
   closeRootStyle: {},
   closeIconStyle: {},
