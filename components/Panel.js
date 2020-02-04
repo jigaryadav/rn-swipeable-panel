@@ -236,7 +236,7 @@ const SwipeablePanelStyles = StyleSheet.create({
     flexDirection: "column",
     backgroundColor: "white",
     bottom: 0,
-    borderRadius: 20,
+    borderRadius: 8,
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: 0,
     shadowColor: "#000",
